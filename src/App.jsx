@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import close from "./assets/close.svg";
 import Result from "./components/Result";
+import { predict } from "./lib/call";
+import useMyContext from "./store/useMyContext";
 
 export default function App() {
   const [history, setHistory] = useState(false);
+  const { state, dispatch } = useMyContext();
 
   function showHistory() {
     setHistory(true);
@@ -11,16 +14,38 @@ export default function App() {
   function closeHistory() {
     setHistory(false);
   }
-  function formAction(event) {
+  async function formAction(event) {
     event.preventDefault(); // Prevent the default form submission behavior
     const formData = new FormData(event.target);
-    const freq = formData.get("freq"); // Corrected to get frequency
-    console.log(freq);
-    alert("Frequency: " + freq); // Fixed alert message
+    const freq = formData.get("freq");
+    const length = formData.get("length");
+    const width = formData.get("width");
+    const slotLength = formData.get("slotLength");
+    const slotWidth = formData.get("slotWidth");
+    await predict({
+      Freq: freq,
+      length_of_patch: length,
+      width_of_patch: width,
+      Slot_length: slotLength,
+      slot_width: slotWidth,
+    })
+      .then((res) => dispatch({ type: "PREDICTED_VALUE", payload: res }))
+      .then(() => {
+        dispatch({
+          type: "INPUTS",
+          payload: [
+            ["Freq.", freq],
+            ["Patch Length", length],
+            ["Patch width", width],
+            ["Slot Length", slotLength],
+            ["Slot Width", slotWidth],
+          ],
+        });
+      });
   }
 
   return (
-    <body className="min-h-screen w-screen overflow-hidden flex flex-col items-center">
+    <div className="min-h-screen w-screen overflow-hidden flex flex-col items-center">
       <header className="bg-[#59D5E0] w-full px-5 py-2 flex flex-row justify-center items-center gap-3">
         <h1 className="text-2xl font-bold underline text-center">
           Predicting Designed Antenna Strength using ML
@@ -69,24 +94,24 @@ export default function App() {
                 required
               />
             </label>
-            <label htmlFor="slot-width" className="flex flex-col">
+            <label htmlFor="slotWidth" className="flex flex-col">
               Slot Width
               <input
                 type="number"
-                id="slot-width"
-                name="slot-width"
+                id="slotWidth"
+                name="slotWidth"
                 step="0.01"
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
                 placeholder="Enter slot width"
                 required
               />
             </label>
-            <label htmlFor="slot-length" className="flex flex-col">
+            <label htmlFor="slotLength" className="flex flex-col">
               Slot Length
               <input
                 type="number"
-                id="slot-length"
-                name="slot-length"
+                id="slotLength"
+                name="slotLength"
                 step="0.01"
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 "
                 placeholder="Enter slot length"
@@ -121,37 +146,35 @@ export default function App() {
               </button>
             </h2>
             <div className="p-3 bg-transparent/10 flex flex-col max-h-[400px] overflow-y-scroll">
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
-              <List />
+              {state.history.length > 0 &&
+                state.history.map((el) => {
+                  return <List data={el} key={el.id} />;
+                })}
             </div>
           </aside>
         ) : null}
         <Result />
       </main>
       <footer></footer>
-    </body>
+    </div>
   );
 }
-function List() {
+function List({ data }) {
   const [onTouch, setOnTouch] = useState(false);
+  const { dispatch } = useMyContext();
 
   function hovering() {
     setOnTouch(true);
   }
+
   function notHovering() {
     setOnTouch(false);
+  }
+
+  function setData() {
+    dispatch({ type: "PREDICTED_VALUE", payload: data.predictedValue });
+    dispatch({ type: "DATA", payload: data.data });
+    dispatch({ type: "CALCULATED_STRENGTH", payload: data.calculatedStrength });
   }
 
   return (
@@ -159,11 +182,20 @@ function List() {
       className="flex w-full gap-4 cursor-pointer hover:border hover:border-l-0 hover:border-slate-300 rounded-l-sm hover:bg-[#F5DD61]"
       onMouseEnter={hovering}
       onMouseLeave={notHovering}
+      onClick={setData}
     >
       <div
-        className={`w-[4px] rounded-l-sm ${onTouch ? "bg-green-500" : null}`}
+        className={`w-[4px] rounded-l-sm ${onTouch ? "bg-green-500" : ""}`}
       ></div>
-      <p className={`py-2  ${onTouch ? "font-semibold" : null}`}>Exam 1</p>
+      <div className={`py-2 text-sm ${onTouch ? "font-semibold" : ""}`}>
+        {data.inputs.map((el, i) => {
+          return (
+            <p key={i}>
+              {el[0]} : <strong>{el[1]}</strong>{" "}
+            </p>
+          );
+        })}
+      </div>
     </div>
   );
 }

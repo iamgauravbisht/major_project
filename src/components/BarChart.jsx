@@ -23,11 +23,11 @@ const options = {
   responsive: true,
   plugins: {
     legend: {
-      position: "top",
+      display: false, // Hide dataset label
     },
     title: {
       display: true,
-      text: "Chart.js Bar Chart",
+      text: "Algorithm Efficiency",
     },
   },
   scales: {
@@ -40,32 +40,7 @@ const options = {
   },
 };
 
-const data = {
-  labels: ["Apppe", "Baadf", "Orasdfasfsa", "Gasdfsafr", "Wsfdsfsaa"],
-  datasets: [
-    {
-      label: "Algorithm Efficiency",
-      data: [50, 40, 30, 20, 10], // Likings for each fruit
-      backgroundColor: [
-        "rgba(255, 99, 132)", // Apple
-        "rgba(54, 162, 235)", // Banana
-        "rgba(255, 206, 86)", // Orange
-        "rgba(75, 192, 192)", // Grapes
-        "rgba(153, 102, 255)", // Watermelon
-      ],
-      borderColor: [
-        "rgba(255, 99, 120,)", // Apple
-        "rgba(54, 162, 235,)", // Banana
-        "rgba(255, 206, 86,)", // Orange
-        "rgba(75, 192, 192,)", // Grapes
-        "rgba(153, 102, 255,)", // Watermelon
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
-
-export default function BarChart() {
+export default function BarChart({ data }) {
   return (
     <div className="bg-[#59D5E0] max-w-[300px] h-[300px] p-2 rounded-lg flex-1 w-full">
       <Bar options={options} data={data} height={"300px"} />
