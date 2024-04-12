@@ -29,10 +29,13 @@ export default function Result() {
 
     const updatedData = Object.entries(state.predictedValue.s11).map((el) => {
       const absoluteDifference = Math.abs(
-        el[1] + Math.abs(state.calculatedStrength)
+        Math.abs(el[1]) - Math.abs(state.calculatedStrength)
       );
       const relativeDifference =
         (absoluteDifference / Math.abs(state.calculatedStrength)) * 100;
+      if (relativeDifference > 200) {
+        return 0;
+      }
       const efficiency = 100 - relativeDifference;
       return Math.abs(efficiency);
     });
@@ -51,9 +54,9 @@ export default function Result() {
   }
 
   return (
-    <div className="bg-[#F4538A] w-5/6 p-4 rounded-lg flex justify-center flex-wrap gap-5 px-4 self-center">
-      <div className="bg-transparent/10 p-2 rounded-lg max-w-[300px] w-full flex flex-col justify-between">
-        <h2 className="w-full text-center font-bold text-xl">
+    <div className="bg-[#F4538A] bg-opacity-90 w-5/6 p-4 rounded-lg flex justify-center flex-wrap gap-5 px-4 self-center">
+      <div className="bg-transparent/10 p-2 rounded-lg max-w-[300px] w-full flex flex-col ">
+        <h2 className="w-full text-center font-bold sm:text-lg">
           Strength Prediction
         </h2>
         <ul className="p-5">
@@ -71,18 +74,18 @@ export default function Result() {
           <label htmlFor="cs" className="font-semibold text-sm">
             Calculated Strength
           </label>
-          <div>
+          <div className="flex gap-1 flex-wrap justify-center">
             <input
               type="number"
               id="cs"
               name="cs"
               step="0.01"
-              className="shadow-sm text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+              className="shadow-sm text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 text-black"
               placeholder="Enter Calculated Strength"
               value={state.calculatedStrength}
               onChange={(e) =>
                 dispatch({
-                  type: "CALCULATED_STRENGH",
+                  type: "CALCULATED_STRENGTH",
                   payload: e.target.value,
                 })
               }

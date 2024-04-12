@@ -4,6 +4,7 @@ const initialState = {
   performance: null,
   predictedValue: null,
   calculatedStrength: 0,
+  showHistory: false,
   history: [],
   historyIndex: 0,
   inputs: [],
@@ -43,7 +44,7 @@ function reducer(state, action) {
       return { ...state, performance: action.payload };
     case "DATA":
       return { ...state, data: action.payload };
-    case "CALCULATED_STRENGH":
+    case "CALCULATED_STRENGTH":
       return { ...state, calculatedStrength: action.payload };
     case "HISTORY":
       return { ...state, history: [action.payload, ...state.history] };
@@ -51,6 +52,8 @@ function reducer(state, action) {
       return { ...state, inputs: action.payload };
     case "HISTORY_INDEX":
       return { ...state, historyIndex: action.payload };
+    case "SHOW_HISTORY":
+      return { ...state, showHistory: action.payload };
     default:
       return state;
   }
